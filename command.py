@@ -1,14 +1,8 @@
-from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
+import spacy
+from spacy.matcher import Matcher
 
-chatbot = ChatBot("NUians")
+# Load the language model
+nlp = spacy.load('en_core_web_sm')
 
-traninig = [
-    "Hello",
-    "Hi There Nuian",
-    "How are you doing",
-    "I am doing well",
-    "That is good to hear"
-
-]
-
+# Initialize the matcher with the shared vocab
+matcher = Matcher(nlp.vocab)
