@@ -7,7 +7,7 @@ pygame.font.init()
 WIDTH ,HEIGHT=1000,700
 
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("SPACE DODGE")
+pygame.display.set_caption("NIGGA DODGE")
  
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH,HEIGHT))
 
@@ -40,6 +40,30 @@ def draw(player, elapsed_time, stars):
 
 def get_elapsed_time(start_time):
     return round(time.time() - start_time)
+
+def game_over_screen():
+    game_over_text = FONT.render("Game Over", 1, "red")
+    restart_text = FONT.render("Press R to restart", 1, "white")
+    quit_text = FONT.render("Press Q to quit", 1, "white")
+
+    WIN.blit(game_over_text, (WIDTH/2 - game_over_text.get_width()/2, HEIGHT/2 - game_over_text.get_height()))
+    WIN.blit(restart_text, (WIDTH/2 - restart_text.get_width()/2, HEIGHT/2))
+    WIN.blit(quit_text, (WIDTH/2 - quit_text.get_width()/2, HEIGHT/2 + quit_text.get_height()))
+
+    pygame.display.update()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return True  # Restart the game
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
 
 def main():
     run = True
@@ -96,6 +120,16 @@ def main():
             WIN.blit(lost_text,(WIDTH/2 - lost_text.get_width()/2 ,HEIGHT/2 - lost_text.get_height()/2))
             pygame.display.update()
             pygame.time.delay(4000)
+            break
+
+        if game_over_screen():
+                # Restart the game
+                player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+                start_time = time.time()
+                elapsed_time = 0
+                stars = []
+                hit = False
+        else:
             break
 
         draw(player, elapsed_time, stars)        
