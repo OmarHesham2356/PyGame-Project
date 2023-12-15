@@ -117,7 +117,7 @@ def main():
 
         if hit:
             elapsed_time = get_elapsed_time(start_time)
-            lost_text = FONT.render(f"You Lost :( Time: {elapsed_time}s", 1, "red")
+            lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
             lost_text_pos = (320, 300)
             WIN.blit(lost_text, lost_text_pos)
             pygame.display.update()
