@@ -1,42 +1,50 @@
 import pygame
 import time
 import random
+import sys 
 pygame.font.init()
 
-WIDTH ,HEIGHT=1000,800
+WIDTH ,HEIGHT=1000,700
 
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("SPACE DODGE")
  
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH,HEIGHT))
 
-PLAYER_WIDTH = 40
-PLAYER_HIGHT =  90 
-
+PLAYER_WIDTH = 60
+PLAYER_HEIGHT = 40  
 PLAYER_VEL = 5
-STAR_WIDTH = 10
-STAR_HEIGHT = 20
+
+STAR_WIDTH = 50
+STAR_HEIGHT = 70
 STAR_VEl = 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
+
 def draw(player, elapsed_time, stars):
-    WIN.blit(BG, (0,0))
+    WIN.blit(BG, (0, 0))
 
-    time_text = FONT.render(f"Time:{round(elapsed_time)}s",1,"white")
-    WIN.blit(time_text, (10,10))
-    
-    pygame.draw.rect(WIN,"blue",player)
+    time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
+    WIN.blit(time_text, (10, 10))
 
+    player_image = pygame.transform.scale(pygame.image.load("tiny_ship6.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
+    WIN.blit(player_image, player.topleft)
+
+    star_image = pygame.transform.scale(pygame.image.load("R1.png"), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
-        pygame.draw.rect(WIN, "white", star)
+        WIN.blit(star_image, star.topleft)
 
     pygame.display.update()
+
+
+def get_elapsed_time(start_time):
+    return round(time.time() - start_time)
 
 def main():
     run = True
 
-    player = pygame.Rect(200, HEIGHT - PLAYER_HIGHT, PLAYER_WIDTH,PLAYER_HIGHT)
+    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH,PLAYER_HEIGHT)
 
     clock = pygame.time.Clock()
     start_time = time.time()
@@ -83,7 +91,8 @@ def main():
 
 
         if hit:
-            lost_text = FONT.render("You Lost :(" , 1 , "red")
+            elapsed_time = get_elapsed_time(start_time)
+            lost_text = FONT.render(f"You Lost :( Time: {elapsed_time}s", 1, "red")
             WIN.blit(lost_text,(WIDTH/2 - lost_text.get_width()/2 ,HEIGHT/2 - lost_text.get_height()/2))
             pygame.display.update()
             pygame.time.delay(4000)
@@ -92,6 +101,5 @@ def main():
         draw(player, elapsed_time, stars)        
     pygame.quit()
 
-
-if __name__ == "__main__":
+if __name__ ==   "__main__":
     main()  
