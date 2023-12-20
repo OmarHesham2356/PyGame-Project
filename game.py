@@ -36,6 +36,12 @@ def draw(player, elapsed_time, stars):
 
     pygame.display.update()
 
+def show_score(elapsed_time):
+    score_text = FONT.render(f"Your Time: {elapsed_time}s", 1, "white")
+    score_text_pos = (380,290)
+    WIN.blit(score_text, score_text_pos)
+    pygame.display.update()
+
 def get_elapsed_time(start_time):
     return round(time.time() - start_time)
 
@@ -44,9 +50,9 @@ def game_over_screen():
     restart_text = FONT.render("Press R to restart", 1, "white")
     quit_text = FONT.render("Press Q to quit", 1, "white")
 
-    game_over_text_pos = (400, 350)
-    restart_text_pos = (WIDTH / 2 - restart_text.get_width() / 2, game_over_text_pos[1] + game_over_text.get_height())
-    quit_text_pos = (WIDTH / 2 - quit_text.get_width() / 2, restart_text_pos[1] + restart_text.get_height())
+    game_over_text_pos = (380,325)
+    restart_text_pos = (380,360)
+    quit_text_pos = (380,390)
 
     WIN.blit(game_over_text, game_over_text_pos)
     WIN.blit(restart_text, restart_text_pos)
@@ -117,11 +123,13 @@ def main():
 
         if hit:
             elapsed_time = get_elapsed_time(start_time)
-            lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
-            lost_text_pos = (320, 300)
+            lost_text = FONT.render(f"You Lost :(", 1, "red")
+            lost_text_pos = (390,250)
             WIN.blit(lost_text, lost_text_pos)
             pygame.display.update()
             pygame.time.delay(2000)
+
+            show_score(elapsed_time)
 
             if game_over_screen():
                 player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
