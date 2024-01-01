@@ -16,11 +16,6 @@ BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
 transition_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 BLACK = (0, 0, 0)
 
-sound2_sfx = pygame.mixer.Sound("3.wav")
-sound2_sfx.set_volume(0.5)
-
-sound_sfx = pygame.mixer.Sound("2.wav")
-sound_sfx.set_volume(0.5)
 FONT1 = pygame.font.Font("1.ttf", 100)
 
 PLAYER_WIDTH = 60
@@ -119,7 +114,7 @@ def main():
     run = True
     transition_alpha = 260
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-    sound2_sfx.play()
+    
     
     clock = pygame.time.Clock()
     start_time = time.time()
@@ -171,8 +166,7 @@ def main():
                 break
 
         if hit:
-            sound2_sfx.stop()
-            sound_sfx.play()
+            
 
             fade_counter = 0
             while fade_counter < WIDTH:
@@ -191,7 +185,6 @@ def main():
 
             if game_over_screen():
                 player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-                sound2_sfx.play()
                 start_time = time.time()
                 elapsed_time = 0
                 stars = []
