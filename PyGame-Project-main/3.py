@@ -1,11 +1,8 @@
 import pygame
-from pygame import mixer
 import time
 import random
 import sys
 
-pygame.mixer.pre_init(44100, -16, 2, 512)
-mixer.init()
 pygame.font.init()
 
 WIDTH, HEIGHT = 1000, 700
@@ -14,9 +11,6 @@ pygame.display.set_caption("SPACE DODGE")
 
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
 transition_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-
-sound_sfx = pygame.mixer.Sound("2.wav")
-sound_sfx.set_volume(0.5)
 
 FONT1 = pygame.font.Font("1.ttf", 100)
 
@@ -82,7 +76,33 @@ def game_over_screen():
                     pygame.quit()
                     sys.exit()
 
+def startup_menu():
+    menu_font = pygame.font.Font("1.ttf", 60)
+    title_font = pygame.font.Font("1.ttf", 100)
+
+    title_text = title_font.render("SPACE DODGE", 1, "purple")
+    start_text = menu_font.render("Press SPACE to start", 1, "white")
+
+    title_pos = (WIDTH // 2 - title_text.get_width() // 2, 200)
+    start_pos = (WIDTH // 2 - start_text.get_width() // 2, 400)
+
+    WIN.blit(title_text, title_pos)
+    WIN.blit(start_text, start_pos)
+
+    pygame.display.update()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    waiting = False
+
 def main():
+    startup_menu()
     run = True
     transition_alpha = 260
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
@@ -135,7 +155,6 @@ def main():
                 break
 
         if hit:
-            sound_sfx.play()
             elapsed_time = get_elapsed_time(start_time)
             lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
             lost_text_pos = (320, 300)
