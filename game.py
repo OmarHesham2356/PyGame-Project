@@ -1,7 +1,6 @@
 import pygame
 import random
-from pygame import mixer
-
+import sys
 import time
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -10,40 +9,28 @@ pygame.init()
 WIDTH, HEIGHT = 1000, 700
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("SPACE DODGE")
-#BG
-BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
+
+BG = pygame.transform.scale(pygame.image.load("BG.jpg"), (WIDTH, HEIGHT))
 BLACK = (0, 0, 0)
-#BG_sound
-mixer.music.load("BG.mp3")
-mixer.music.play(-1)
 
 sound2_sfx = pygame.mixer.Sound("Kandil.wav")
 sound2_sfx.set_volume(0.5)
 
-sound_sfx = pygame.mixer.Sound("2.wav")
+sound_sfx = pygame.mixer.Sound("3.wav")
 sound_sfx.set_volume(0.5)
 
 PLAYER_WIDTH, PLAYER_HEIGHT = 60, 40
 PLAYER_VEL = 5
+DEFAULT_PLAYER_VEL = 5
+POWERUP_DURATION = 5  # seconds
 
 STAR_WIDTH, STAR_HEIGHT, STAR_VELOCITY = 50, 70, 3
 POWERUP_WIDTH, POWERUP_HEIGHT, POWERUP_VELOCITY = 50, 50, 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
-def draw_player(player):
-    player_image = pygame.transform.scale(pygame.image.load("Ship.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
-    WIN.blit(player_image, player.topleft)
-
-def draw(player, elapsed_time, stars):
-    WIN.blit(BG, (0, 0))
-
-    time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
-    WIN.blit(time_text, (10, 10))
-
-    draw_player(player)
-
-    star_image = pygame.transform.scale(pygame.image.load("Star.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
+def draw_stars(stars):
+    star_image = pygame.transform.scale(pygame.image.load("R1.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
         WIN.blit(star_image, star.topleft)
 
@@ -52,18 +39,22 @@ def draw_powerups(powerups):
     for powerup in powerups:
         WIN.blit(powerup_image, powerup.topleft)
 
-def draw_text(elapsed_time):
-    time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
-    WIN.blit(time_text, (10, 10))
+def draw_player(player):
+    player_image = pygame.transform.scale(pygame.image.load("Ship.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
+    WIN.blit(player_image, player.topleft)
 
 def draw_background():
     WIN.blit(BG, (0, 0))
+
+def draw_text(elapsed_time):
+    time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
+    WIN.blit(time_text, (10, 10))
 
 def draw_game(player, elapsed_time, stars, powerups):
     draw_background()
     draw_text(elapsed_time)
     draw_player(player)
-    draw(player, elapsed_time, stars)
+    draw_stars(stars)
     draw_powerups(powerups)
     pygame.display.update()
 
@@ -149,9 +140,12 @@ def main():
     global PLAYER_VEL
     run = True
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+    sound_sfx.play()
     clock = pygame.time.Clock()
     start_time = start_menu()
     elapsed_time = 0
+    powerup_timer = 0
+    powerup_active = False
 
     star_add_increment = 3
     powerup_add_increment = 5
@@ -205,12 +199,16 @@ def main():
             elif player.colliderect(powerup):
                 powerups.remove(powerup)
                 PLAYER_VEL += 2
+                powerup_timer = time.time()
+                powerup_active = True
+
+        if powerup_active and time.time() - powerup_timer > POWERUP_DURATION:
+            # Powerup duration has expired
+            PLAYER_VEL = DEFAULT_PLAYER_VEL
+            powerup_active = False
 
         if hit:
             sound_sfx.play()
-
-            # Stop the background music
-            pygame.mixer.music.stop()
 
             fade_counter = 0
             while fade_counter < WIDTH:
@@ -234,7 +232,8 @@ def main():
                 stars = []
                 powerups = []
                 hit = False
-                PLAYER_VEL = 5  # Reset the player's velocity
+                PLAYER_VEL = DEFAULT_PLAYER_VEL
+                powerup_active = False
             else:
                 break
 
