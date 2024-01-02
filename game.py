@@ -29,6 +29,14 @@ POWERUP_WIDTH, POWERUP_HEIGHT, POWERUP_VELOCITY = 50, 50, 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
+# Load different ship images for customization
+ship_images = [
+    pygame.image.load("Ship.png").convert_alpha(),
+    pygame.image.load("Ship2.png").convert_alpha(),
+    pygame.image.load("Ship3.png").convert_alpha(),
+    # Add more images if needed
+]
+
 def draw_stars(stars):
     star_image = pygame.transform.scale(pygame.image.load("Star.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
@@ -39,8 +47,7 @@ def draw_powerups(powerups):
     for powerup in powerups:
         WIN.blit(powerup_image, powerup.topleft)
 
-def draw_player(player):
-    player_image = pygame.transform.scale(pygame.image.load("Ship.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
+def draw_player(player, player_image):
     WIN.blit(player_image, player.topleft)
 
 def draw_background():
@@ -50,16 +57,20 @@ def draw_text(elapsed_time):
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
 
-def draw_game(player, elapsed_time, stars, powerups):
+def draw_game(player, elapsed_time, stars, powerups, player_image):
     draw_background()
     draw_text(elapsed_time)
-    draw_player(player)
+    draw_player(player, player_image)
     draw_stars(stars)
     draw_powerups(powerups)
     pygame.display.update()
 
-def get_elapsed_time(start_time):
-    return round(time.time() - start_time)
+def get_elapsed_time(start_time, paused_time):
+    current_time = time.time()
+    if paused_time:
+        return round(paused_time - start_time)
+    return round(current_time - start_time)
+
 
 def game_over_screen():
     game_over_text = FONT.render("Game Over", 1, "red")
@@ -87,6 +98,17 @@ def game_over_screen():
                 elif event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
+
+def pause_menu():
+    pause_text = FONT.render("Paused", 1, "white")
+    resume_text = FONT.render("Press P to resume", 1, "white")
+
+    pause_text_pos = (WIDTH // 2 - pause_text.get_width() // 2, 250)
+    resume_text_pos = (WIDTH // 2 - resume_text.get_width() // 2, pause_text_pos[1] + pause_text.get_height() + 70)
+
+    WIN.blit(pause_text, pause_text_pos)
+    WIN.blit(resume_text, resume_text_pos)
+    pygame.display.update()
 
 def start_menu():
     menu_font = pygame.font.Font("Fonts.ttf", 100)
@@ -141,9 +163,51 @@ def handle_input(player):
     if keys[pygame.K_DOWN] and player.y + PLAYER_VEL + player.height <= HEIGHT:
         player.y += PLAYER_VEL
 
+def customization_menu():
+    menu_font = pygame.font.Font("2.ttf", 60)
+    menu_font1 = pygame.font.Font("Fonts.ttf", 60)
+    menu_title = menu_font1.render("Choose Your Ship", 1, "purple")
+    ship_option1 = menu_font.render("Press 1 for Ship 1", 1, "white")
+    ship_option2 = menu_font.render("Press 2 for Ship 2", 1, "white")
+    ship_option3 = menu_font.render("Press 3 for Ship 3", 1, "white")
+    # Add more options if needed
+
+    title_pos = (WIDTH // 2 - menu_title.get_width() // 2, 100)
+    option1_pos = (WIDTH // 2 - ship_option1.get_width() // 2, title_pos[1] + menu_title.get_height() + 50)
+    option2_pos = (WIDTH // 2 - ship_option2.get_width() // 2, option1_pos[1] + ship_option1.get_height() + 20)
+    option3_pos = (WIDTH // 2 - ship_option3.get_width() // 2, option2_pos[1] + ship_option2.get_height() + 20)
+    # Adjust positions for additional options
+
+    WIN.blit(BG, (0, 0))
+    WIN.blit(menu_title, title_pos)
+    WIN.blit(ship_option1, option1_pos)
+    WIN.blit(ship_option2, option2_pos)
+    WIN.blit(ship_option3, option3_pos)
+    # Add blits for additional options
+    pygame.display.update()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return 0  # Index of ship 1 in ship_images list
+                elif event.key == pygame.K_2:
+                    return 1
+                elif event.key == pygame.K_3:
+                    return 2  # Index of ship 2 in ship_images list
+                # Add more key checks for additional options
+
+
 def main():
-    global PLAYER_VEL
+    global PLAYER_VEL, STAR_VELOCITY
     run = True
+    player_image_index = customization_menu()
+    player_image = ship_images[player_image_index]
+
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
     sound_sfx.play()
     clock = pygame.time.Clock()
@@ -151,6 +215,8 @@ def main():
     elapsed_time = 0
     powerup_timer = 0
     powerup_active = False
+    last_difficulty_increase = 0
+    paused_time = None  # To store the time when the game is paused
 
     star_add_increment = 3
     powerup_add_increment = 5
@@ -160,12 +226,20 @@ def main():
     stars = []
     powerups = []
     hit = False
+    paused = False
 
     while run:
         dt = clock.tick(60) / 1000.0  # Convert to seconds
         star_count += dt
         powerup_count += dt
-        elapsed_time = get_elapsed_time(start_time)
+
+        elapsed_time = get_elapsed_time(start_time, paused_time)
+
+        # Increase difficulty every 30 seconds
+        if elapsed_time - last_difficulty_increase >= 30:
+            STAR_VELOCITY += 1
+            star_add_increment += 1
+            last_difficulty_increase = elapsed_time
 
         if star_count > star_add_increment:
             for _ in range(3):
@@ -183,68 +257,87 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 break
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
+                    if paused:
+                        # Store the time when the game is paused
+                        paused_start_time = time.time()
+                    else:
+                        # Adjust the start_time to account for the time spent in pause
+                        paused_duration = time.time() - paused_start_time
+                        start_time += paused_duration
+                        paused_time = None
 
-        handle_input(player)
+        if not paused:
+            handle_input(player)
 
-        for star in stars:
-            star.y += STAR_VELOCITY
-            if star.y > HEIGHT:
-                stars.remove(star)
-            elif star.colliderect(player):
-                stars.remove(star)
-                hit = True
-                break
+            for star in stars:
+                star.y += STAR_VELOCITY
+                if star.y > HEIGHT:
+                    stars.remove(star)
+                elif star.colliderect(player):
+                    stars.remove(star)
+                    hit = True
+                    break
 
-        for powerup in powerups:
-            powerup.y += POWERUP_VELOCITY
-            if powerup.y > HEIGHT:
-                powerups.remove(powerup)
-            elif player.colliderect(powerup):
-                powerups.remove(powerup)
-                PLAYER_VEL += 2
-                powerup_timer = time.time()
-                powerup_active = True
+            for powerup in powerups:
+                powerup.y += POWERUP_VELOCITY
+                if powerup.y > HEIGHT:
+                    powerups.remove(powerup)
+                elif player.colliderect(powerup):
+                    powerups.remove(powerup)
+                    PLAYER_VEL += 2
+                    powerup_timer = time.time()
+                    powerup_active = True
 
-        if powerup_active and time.time() - powerup_timer > POWERUP_DURATION:
-            # Powerup duration has expired
-            PLAYER_VEL = DEFAULT_PLAYER_VEL
-            powerup_active = False
-
-        if hit:
-            sound2_sfx.play()
-            sound_sfx.stop()
-
-            fade_counter = 0
-            while fade_counter < WIDTH:
-                fade_counter += 10
-                pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter, HEIGHT))
-                pygame.display.update()
-                pygame.time.delay(7)
-
-            elapsed_time = get_elapsed_time(start_time)
-            lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
-            lost_text_pos = (320, 300)
-            WIN.blit(lost_text, lost_text_pos)
-
-            pygame.display.update()
-            pygame.time.delay(2000)
-
-            if game_over_screen():
-                sound_sfx.play()
-                player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-                start_time = time.time()
-                elapsed_time = 0
-                stars = []
-                powerups = []
-                hit = False
+            if powerup_active and time.time() - powerup_timer > POWERUP_DURATION:
+                # Powerup duration has expired
                 PLAYER_VEL = DEFAULT_PLAYER_VEL
                 powerup_active = False
-            else:
-                break
 
-        draw_game(player, elapsed_time, stars, powerups)
+            if hit:
+                sound2_sfx.play()
+                sound_sfx.stop()
+
+                fade_counter = 0
+                while fade_counter < WIDTH:
+                    fade_counter += 10
+                    pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter, HEIGHT))
+                    pygame.display.update()
+                    pygame.time.delay(7)
+
+                elapsed_time = get_elapsed_time(start_time, paused_time)
+                lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
+                lost_text_pos = (320, 300)
+                WIN.blit(lost_text, lost_text_pos)
+
+                pygame.display.update()
+                pygame.time.delay(2000)
+
+                if game_over_screen():
+                    sound_sfx.play()
+                    player_image_index = customization_menu()
+                    player_image = ship_images[player_image_index]
+                    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+                    start_time = time.time()
+                    elapsed_time = 0
+                    stars = []
+                    powerups = []
+                    hit = False
+                    PLAYER_VEL = DEFAULT_PLAYER_VEL
+                    powerup_active = False
+                    last_difficulty_increase = elapsed_time
+                    paused_time = None  # Reset paused time
+                else:
+                    break
+
+            draw_game(player, elapsed_time, stars, powerups, player_image)
+        else:
+            pause_menu()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
