@@ -27,17 +27,19 @@ POWERUP_WIDTH, POWERUP_HEIGHT, POWERUP_VELOCITY = 50, 50, 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
+def draw_player(player):
+    player_image = pygame.transform.scale(pygame.image.load("Ship.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
+    WIN.blit(player_image, player.topleft)
+
 def draw(player, elapsed_time, stars):
     WIN.blit(BG, (0, 0))
-
 
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
 
-    player_image = pygame.transform.scale(pygame.image.load("tiny_ship6.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
-    WIN.blit(player_image, player.topleft)
+    draw_player(player)
 
-    star_image = pygame.transform.scale(pygame.image.load("R1.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
+    star_image = pygame.transform.scale(pygame.image.load("Star.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
         WIN.blit(star_image, star.topleft)
 
@@ -57,7 +59,7 @@ def draw_game(player, elapsed_time, stars, powerups):
     draw_background()
     draw_text(elapsed_time)
     draw_player(player)
-    draw_stars(stars)
+    draw(player, elapsed_time, stars)
     draw_powerups(powerups)
     pygame.display.update()
 
