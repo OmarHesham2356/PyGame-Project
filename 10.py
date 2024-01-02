@@ -13,6 +13,9 @@ pygame.display.set_caption("SPACE DODGE")
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
 BLACK = (0, 0, 0)
 
+sound2_sfx = pygame.mixer.Sound("3.wav")
+sound2_sfx.set_volume(0.5)
+
 sound_sfx = pygame.mixer.Sound("2.wav")
 sound_sfx.set_volume(0.5)
 
@@ -24,11 +27,16 @@ POWERUP_WIDTH, POWERUP_HEIGHT, POWERUP_VELOCITY = 50, 50, 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
-def draw_player(player):
+def draw(player, elapsed_time, stars):
+    WIN.blit(BG, (0, 0))
+
+
+    time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
+    WIN.blit(time_text, (10, 10))
+
     player_image = pygame.transform.scale(pygame.image.load("tiny_ship6.png").convert_alpha(), (PLAYER_WIDTH, PLAYER_HEIGHT))
     WIN.blit(player_image, player.topleft)
 
-def draw_stars(stars):
     star_image = pygame.transform.scale(pygame.image.load("R1.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
         WIN.blit(star_image, star.topleft)
