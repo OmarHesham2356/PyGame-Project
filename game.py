@@ -1,4 +1,5 @@
 import pygame
+import pygame.mask
 import random
 import sys
 import time
@@ -72,6 +73,26 @@ def get_elapsed_time(start_time, paused_time):
         return round(paused_time - start_time)
     return round(current_time - start_time)
 
+def create_player_mask(player):
+    player_image = pygame.transform.scale(ship_images[0], (PLAYER_WIDTH, PLAYER_HEIGHT))
+    return pygame.mask.from_surface(player_image)
+
+def create_star_masks(stars):
+    star_masks = []
+    star_image = pygame.transform.scale(pygame.image.load("Star.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
+    for star in stars:
+        mask = pygame.mask.from_surface(star_image)
+        star_masks.append(mask)
+    return star_masks
+
+def check_star_collision(player, stars, star_masks):
+    player_mask = create_player_mask(player)
+    for i, star in enumerate(stars):
+        star_mask = star_masks[i]
+        offset = (int(star.x - player.x), int(star.y - player.y))
+        if player_mask.overlap(star_mask, offset):
+            return True
+    return False
 
 def game_over_screen():
     game_over_text = FONT.render("Game Over", 1, "red")
@@ -138,10 +159,10 @@ def start_menu():
                 if event.key == pygame.K_RETURN:
                     fade_counter2 = 0
                     while fade_counter2 < WIDTH:
-                       fade_counter2 += 10
-                       pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter2, HEIGHT))
-                       pygame.display.update()
-                       pygame.time.delay(7)
+                        fade_counter2 += 10
+                        pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter2, HEIGHT))
+                        pygame.display.update()
+                        pygame.time.delay(7)
                     start_time = time.time()
                     return start_time
                 elif event.key == pygame.K_ESCAPE:
@@ -208,7 +229,6 @@ def customization_menu():
                     return 3  # Index of ship 2 in ship_images list
                 # Add more key checks for additional options
 
-
 def main():
     global PLAYER_VEL, STAR_VELOCITY
     run = True
@@ -257,6 +277,8 @@ def main():
             spawn_powerup(powerups)
             powerup_count = 0
 
+        star_masks = create_star_masks(stars)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -276,11 +298,11 @@ def main():
         if not paused:
             handle_input(player)
 
-            for star in stars:
+            for i, star in enumerate(stars):
                 star.y += STAR_VELOCITY
                 if star.y > HEIGHT:
                     stars.remove(star)
-                elif star.colliderect(player):
+                elif check_star_collision(player, [star], [star_masks[i]]):
                     stars.remove(star)
                     hit = True
                     break
