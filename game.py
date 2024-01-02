@@ -43,7 +43,7 @@ def draw_stars(stars):
         WIN.blit(star_image, star.topleft)
 
 def draw_powerups(powerups):
-    powerup_image = pygame.transform.scale(pygame.image.load("power_up.jpg").convert_alpha(), (POWERUP_WIDTH, POWERUP_HEIGHT))
+    powerup_image = pygame.transform.scale(pygame.image.load("power_up.png").convert_alpha(), (POWERUP_WIDTH, POWERUP_HEIGHT))
     for powerup in powerups:
         WIN.blit(powerup_image, powerup.topleft)
 
@@ -218,8 +218,8 @@ def main():
     last_difficulty_increase = 0
     paused_time = None  # To store the time when the game is paused
 
-    star_add_increment = 3
-    powerup_add_increment = 5
+    star_add_increment = 5
+    powerup_add_increment = 8
     star_count = 0
     powerup_count = 0
 
@@ -238,7 +238,7 @@ def main():
         # Increase difficulty every 30 seconds
         if elapsed_time - last_difficulty_increase >= 30:
             STAR_VELOCITY += 1
-            star_add_increment += 1
+            star_add_increment += 4
             last_difficulty_increase = elapsed_time
 
         if star_count > star_add_increment:
