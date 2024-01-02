@@ -1,30 +1,15 @@
 import pygame
-from pygame import mixer
 import time
 import random
 import sys
 
-pygame.mixer.pre_init(44100, -16, 2, 512)
-mixer.init()
-pygame.init()
 pygame.font.init()
 
 WIDTH, HEIGHT = 1000, 700
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("SPACE DODGE")
 
-#BG
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
-#Transition
-transition_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-#BG_sound
-mixer.music.load("BG.mp3")
-mixer.music.play(-1)
-
-sound_sfx = pygame.mixer.Sound("Kandil.wav")
-sound_sfx.set_volume(0.5)
-
-FONT1 = pygame.font.Font("Fonts.ttf", 100)
 
 PLAYER_WIDTH = 60
 PLAYER_HEIGHT = 40
@@ -36,25 +21,25 @@ STAR_VELOCITY = 3
 
 FONT = pygame.font.SysFont("oswald", 50)
 
-def draw(player, elapsed_time, stars, transition_alpha):
+def draw(player, elapsed_time, stars):
     WIN.blit(BG, (0, 0))
-
-    transition_surface.fill((0, 0, 0, transition_alpha))
-    WIN.blit(transition_surface, (0, 0))
-
-    start_text = FONT1.render("SPACE DODGE", 1, "purple") 
-    WIN.blit(start_text, (120, 275))
 
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
 
-    player_image = pygame.transform.scale(pygame.image.load("Ship.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
+    player_image = pygame.transform.scale(pygame.image.load("tiny_ship6.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
     WIN.blit(player_image, player.topleft)
 
-    star_image = pygame.transform.scale(pygame.image.load("Star.png"), (STAR_WIDTH, STAR_HEIGHT))
+    star_image = pygame.transform.scale(pygame.image.load("R1.png"), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
         WIN.blit(star_image, star.topleft)
 
+    pygame.display.update()
+
+def show_score(elapsed_time):
+    score_text = FONT.render(f"Your Time: {elapsed_time}s", 1, "white")
+    score_text_pos = (380,290)
+    WIN.blit(score_text, score_text_pos)
     pygame.display.update()
 
 def get_elapsed_time(start_time):
@@ -65,9 +50,9 @@ def game_over_screen():
     restart_text = FONT.render("Press R to restart", 1, "white")
     quit_text = FONT.render("Press Q to quit", 1, "white")
 
-    game_over_text_pos = (400, 350)
-    restart_text_pos = (WIDTH / 2 - restart_text.get_width() / 2, game_over_text_pos[1] + game_over_text.get_height())
-    quit_text_pos = (WIDTH / 2 - quit_text.get_width() / 2, restart_text_pos[1] + restart_text.get_height())
+    game_over_text_pos = (380,325)
+    restart_text_pos = (380,360)
+    quit_text_pos = (380,390)
 
     WIN.blit(game_over_text, game_over_text_pos)
     WIN.blit(restart_text, restart_text_pos)
@@ -90,14 +75,14 @@ def game_over_screen():
 
 def main():
     run = True
-    transition_alpha = 260
+
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     clock = pygame.time.Clock()
     start_time = time.time()
     elapsed_time = 0
 
-    star_add_increment = 3000
+    star_add_increment = 2000
     star_count = 0
 
     stars = []
@@ -121,20 +106,11 @@ def main():
                 run = False
                 break
 
-        if transition_alpha > 0 and run:
-            transition_alpha = max(0, transition_alpha - 5)
-            clock.tick(45)
-
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
             player.x -= PLAYER_VEL
         if keys[pygame.K_RIGHT] and player.x - PLAYER_VEL + player.width <= WIDTH:
             player.x += PLAYER_VEL
-        if keys[pygame.K_UP] and player.y - PLAYER_VEL >= 0:
-            player.y -= PLAYER_VEL
-        if keys[pygame.K_DOWN] and player.y - PLAYER_VEL + player.height <= HEIGHT:
-            player.y += PLAYER_VEL
-        
 
         for star in stars[:]:
             star.y += STAR_VELOCITY
@@ -146,14 +122,14 @@ def main():
                 break
 
         if hit:
-            sound_sfx.play()
             elapsed_time = get_elapsed_time(start_time)
-            lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
-            lost_text_pos = (320, 300)
+            lost_text = FONT.render(f"You Lost :(", 1, "red")
+            lost_text_pos = (390,250)
             WIN.blit(lost_text, lost_text_pos)
-
             pygame.display.update()
             pygame.time.delay(2000)
+
+            show_score(elapsed_time)
 
             if game_over_screen():
                 player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
@@ -164,7 +140,7 @@ def main():
             else:
                 break
 
-        draw(player, elapsed_time, stars, transition_alpha)
+        draw(player, elapsed_time, stars)
 
     pygame.quit()
 
