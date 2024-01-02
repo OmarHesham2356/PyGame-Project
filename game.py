@@ -125,6 +125,11 @@ def start_menu():
                     pygame.quit()
                     sys.exit()
 
+def spawn_powerup(powerups):
+    powerup_x = random.randint(0, WIDTH - POWERUP_WIDTH)
+    powerup = pygame.Rect(powerup_x, -POWERUP_HEIGHT, POWERUP_WIDTH, POWERUP_HEIGHT)
+    powerups.append(powerup)
+
 def handle_input(player):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
@@ -138,7 +143,6 @@ def handle_input(player):
 
 def main():
     global PLAYER_VEL
-    sound_sfx.play()
     run = True
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
     sound_sfx.play()
@@ -172,9 +176,7 @@ def main():
             star_count = 0
 
         if powerup_count > powerup_add_increment:
-            powerup_x = random.randint(0, WIDTH - POWERUP_WIDTH)
-            powerup = pygame.Rect(powerup_x, -POWERUP_HEIGHT, POWERUP_WIDTH, POWERUP_HEIGHT)
-            powerups.append(powerup)
+            spawn_powerup(powerups)
             powerup_count = 0
 
         for event in pygame.event.get():
