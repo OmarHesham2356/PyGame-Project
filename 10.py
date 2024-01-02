@@ -13,7 +13,7 @@ pygame.display.set_caption("SPACE DODGE")
 BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
 BLACK = (0, 0, 0)
 
-sound2_sfx = pygame.mixer.Sound("3.wav")
+sound2_sfx = pygame.mixer.Sound("Kandil.wav")
 sound2_sfx.set_volume(0.5)
 
 sound_sfx = pygame.mixer.Sound("2.wav")
