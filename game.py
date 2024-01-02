@@ -1,23 +1,16 @@
 import pygame
+import time
 import random
 import sys
 import time
 
-pygame.mixer.pre_init(44100, -16, 2, 512)
-pygame.init()
+pygame.font.init()
 
 WIDTH, HEIGHT = 1000, 700
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("SPACE DODGE")
 
-BG = pygame.transform.scale(pygame.image.load("BG.jpg"), (WIDTH, HEIGHT))
-BLACK = (0, 0, 0)
-
-sound2_sfx = pygame.mixer.Sound("Kandil.wav")
-sound2_sfx.set_volume(0.5)
-
-sound_sfx = pygame.mixer.Sound("3.wav")
-sound_sfx.set_volume(0.5)
+BG = pygame.transform.scale(pygame.image.load("Bg.jpg"), (WIDTH, HEIGHT))
 
 PLAYER_WIDTH, PLAYER_HEIGHT = 60, 40
 PLAYER_VEL = 5
@@ -46,16 +39,24 @@ def draw_player(player):
 def draw_background():
     WIN.blit(BG, (0, 0))
 
+
 def draw_text(elapsed_time):
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
 
-def draw_game(player, elapsed_time, stars, powerups):
-    draw_background()
-    draw_text(elapsed_time)
-    draw_player(player)
-    draw_stars(stars)
-    draw_powerups(powerups)
+    player_image = pygame.transform.scale(pygame.image.load("tiny_ship6.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
+    WIN.blit(player_image, player.topleft)
+
+    star_image = pygame.transform.scale(pygame.image.load("R1.png"), (STAR_WIDTH, STAR_HEIGHT))
+    for star in stars:
+        WIN.blit(star_image, star.topleft)
+
+    pygame.display.update()
+
+def show_score(elapsed_time):
+    score_text = FONT.render(f"Your Time: {elapsed_time}s", 1, "white")
+    score_text_pos = (380,290)
+    WIN.blit(score_text, score_text_pos)
     pygame.display.update()
 
 def get_elapsed_time(start_time):
@@ -66,9 +67,9 @@ def game_over_screen():
     restart_text = FONT.render("Press R to restart", 1, "white")
     quit_text = FONT.render("Press Q to quit", 1, "white")
 
-    game_over_text_pos = (400, 350)
-    restart_text_pos = (WIDTH // 2 - restart_text.get_width() // 2, game_over_text_pos[1] + game_over_text.get_height())
-    quit_text_pos = (WIDTH // 2 - quit_text.get_width() // 2, restart_text_pos[1] + restart_text.get_height())
+    game_over_text_pos = (380,325)
+    restart_text_pos = (380,360)
+    quit_text_pos = (380,390)
 
     WIN.blit(game_over_text, game_over_text_pos)
     WIN.blit(restart_text, restart_text_pos)
@@ -88,73 +89,25 @@ def game_over_screen():
                     pygame.quit()
                     sys.exit()
 
-def start_menu():
-    menu_font = pygame.font.Font("1.ttf", 100)
-    menu_font2 = pygame.font.Font("2.ttf", 60)
-    menu_title = menu_font.render("SPACE DODGE", 1, "purple")
-    menu_subtitle = menu_font2.render("Press Enter to start", 1, "white")
-    menu_subtitle2 = menu_font2.render("Press Escape to quit", 1, "white")
-
-    title_pos = (WIDTH // 2 - menu_title.get_width() // 2, 100)
-    subtitle_pos = (WIDTH // 2 - menu_subtitle.get_width() // 2, title_pos[1] + menu_title.get_height() + 70)
-    subtitle_pos2 = (WIDTH // 2 - menu_subtitle2.get_width() // 2, title_pos[1] + menu_subtitle.get_height() + 220)
-
-    WIN.blit(BG, (0, 0))
-    WIN.blit(menu_title, title_pos)
-    WIN.blit(menu_subtitle, subtitle_pos)
-    WIN.blit(menu_subtitle2, subtitle_pos2)
-    pygame.display.update()
-
-    waiting = True
-    while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    fade_counter2 = 0
-                    while fade_counter2 < WIDTH:
-                       fade_counter2 += 10
-                       pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter2, HEIGHT))
-                       pygame.display.update()
-                       pygame.time.delay(7)
-                    start_time = time.time()
-                    return start_time
-                elif event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-
-def handle_input(player):
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
-        player.x -= PLAYER_VEL
-    if keys[pygame.K_RIGHT] and player.x - PLAYER_VEL + player.width <= WIDTH:
-        player.x += PLAYER_VEL
-    if keys[pygame.K_UP] and player.y - PLAYER_VEL >= 0:
-        player.y -= PLAYER_VEL
-    if keys[pygame.K_DOWN] and player.y + PLAYER_VEL + player.height <= HEIGHT:
-        player.y += PLAYER_VEL
-
 def main():
     global PLAYER_VEL
     run = True
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-    sound_sfx.play()
+
     clock = pygame.time.Clock()
     start_time = start_menu()
     elapsed_time = 0
     powerup_timer = 0
     powerup_active = False
 
-    star_add_increment = 3
-    powerup_add_increment = 5
+    star_add_increment = 2000
     star_count = 0
     powerup_count = 0
 
     stars = []
     powerups = []
     hit = False
+
 
     while run:
         dt = clock.tick(60) / 1000.0  # Convert to seconds
@@ -181,7 +134,11 @@ def main():
                 run = False
                 break
 
-        handle_input(player)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
+            player.x -= PLAYER_VEL
+        if keys[pygame.K_RIGHT] and player.x - PLAYER_VEL + player.width <= WIDTH:
+            player.x += PLAYER_VEL
 
         for star in stars:
             star.y += STAR_VELOCITY
@@ -208,15 +165,6 @@ def main():
             powerup_active = False
 
         if hit:
-            sound_sfx.play()
-
-            fade_counter = 0
-            while fade_counter < WIDTH:
-                fade_counter += 10
-                pygame.draw.rect(WIN, BLACK, (0, 0, fade_counter, HEIGHT))
-                pygame.display.update()
-                pygame.time.delay(7)
-
             elapsed_time = get_elapsed_time(start_time)
             lost_text = FONT.render(f"You Lost :( Your Score: {elapsed_time}s", 1, "red")
             lost_text_pos = (320, 300)
@@ -227,6 +175,7 @@ def main():
 
             if game_over_screen():
                 player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+                sound2_sfx.play()
                 start_time = time.time()
                 elapsed_time = 0
                 stars = []
