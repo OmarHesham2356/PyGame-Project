@@ -26,15 +26,22 @@ STAR_WIDTH = 50
 STAR_HEIGHT = 70
 STAR_VELOCITY = 3
 
+POWERUP_WIDTH = 50
+POWERUP_HEIGHT = 50
+POWERUP_VELOCITY = 2
+
+SPEED_POWERUP_WIDTH = 50
+SPEED_POWERUP_HEIGHT = 50
+SPEED_POWERUP_VELOCITY = 2
+speed_powerups = []
+
 FONT = pygame.font.SysFont("oswald", 50)
 
-def draw(player, elapsed_time, stars, transition_alpha):
+def draw(player, elapsed_time, stars, transition_alpha, powerups, speed_powerups):
     WIN.blit(BG, (0, 0))
 
     transition_surface.fill((0, 0, 0, transition_alpha))
     WIN.blit(transition_surface, (0, 0))
-
-
 
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
@@ -45,6 +52,14 @@ def draw(player, elapsed_time, stars, transition_alpha):
     star_image = pygame.transform.scale(pygame.image.load("R1.png"), (STAR_WIDTH, STAR_HEIGHT))
     for star in stars:
         WIN.blit(star_image, star.topleft)
+
+    powerup_image = pygame.transform.scale(pygame.image.load("powerup.png"), (POWERUP_WIDTH, POWERUP_HEIGHT))
+    for powerup in powerups:
+        WIN.blit(powerup_image, powerup.topleft)
+
+    speed_powerup_image = pygame.transform.scale(pygame.image.load("speed_powerup.png"), (SPEED_POWERUP_WIDTH, SPEED_POWERUP_HEIGHT))
+    for speed_powerup in speed_powerups:
+        WIN.blit(speed_powerup_image, speed_powerup.topleft)
 
     pygame.display.update()
 
@@ -114,8 +129,7 @@ def main():
     run = True
     transition_alpha = 260
     player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-    
-    
+
     clock = pygame.time.Clock()
     start_time = time.time()
     elapsed_time = 0
@@ -123,15 +137,38 @@ def main():
     star_add_increment = 3000
     star_count = 0
 
-    stars = []
-    hit = False
+    powerup_add_increment = 5000
+    powerup_count = 0
 
-    start_menu()
+    powerups = []
 
     while run:
         star_count += clock.tick(60)
         elapsed_time = time.time() - start_time
 
+        if star_count > star_add_increment:
+            for _ in range(3):
+                star_x = random.randint(0, WIDTH - STAR_WIDTH)
+                star = pygame.Rect(star_x, -STAR_HEIGHT, STAR_WIDTH, STAR_HEIGHT)
+                stars.append(star)
+
+            star_add_increment = max(200, star_add_increment - 50)
+            star_count = 0
+
+        powerup_count += clock.tick(60)
+
+        if powerup_count > powerup_add_increment:
+            powerup_x = random.randint(0, WIDTH - POWERUP_WIDTH)
+            powerup = pygame.Rect(powerup_x, -POWERUP_HEIGHT, POWERUP_WIDTH, POWERUP_HEIGHT)
+            powerups.append(powerup)
+            powerup_count = 0
+
+        speed_powerup_count += clock.tick(60)
+        if speed_powerup_count > speed_powerup_add_increment:
+            speed_powerup_x = random.randint(0, WIDTH - SPEED_POWERUP_WIDTH)
+            speed_powerup = pygame.Rect(speed_powerup_x, -SPEED_POWERUP_HEIGHT, SPEED_POWERUP_WIDTH, SPEED_POWERUP_HEIGHT)
+            speed_powerups.append(speed_powerup)
+            speed_powerup_count = 0
         if star_count > star_add_increment:
             for _ in range(3):
                 star_x = random.randint(0, WIDTH - STAR_WIDTH)
