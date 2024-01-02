@@ -34,6 +34,7 @@ ship_images = [
     pygame.image.load("Ship.png").convert_alpha(),
     pygame.image.load("Ship2.png").convert_alpha(),
     pygame.image.load("Ship3.png").convert_alpha(),
+    pygame.image.load("Ship4.png").convert_alpha(),
     # Add more images if needed
 ]
 
@@ -170,12 +171,15 @@ def customization_menu():
     ship_option1 = menu_font.render("Press 1 for Ship 1", 1, "white")
     ship_option2 = menu_font.render("Press 2 for Ship 2", 1, "white")
     ship_option3 = menu_font.render("Press 3 for Ship 3", 1, "white")
+    ship_option4 = menu_font.render("Press 4 for Ship 4", 1, "white")
     # Add more options if needed
 
     title_pos = (WIDTH // 2 - menu_title.get_width() // 2, 100)
     option1_pos = (WIDTH // 2 - ship_option1.get_width() // 2, title_pos[1] + menu_title.get_height() + 50)
     option2_pos = (WIDTH // 2 - ship_option2.get_width() // 2, option1_pos[1] + ship_option1.get_height() + 20)
     option3_pos = (WIDTH // 2 - ship_option3.get_width() // 2, option2_pos[1] + ship_option2.get_height() + 20)
+    option4_pos = (WIDTH // 2 - ship_option4.get_width() // 2, option3_pos[1] + ship_option3.get_height() + 20)
+    
     # Adjust positions for additional options
 
     WIN.blit(BG, (0, 0))
@@ -183,6 +187,7 @@ def customization_menu():
     WIN.blit(ship_option1, option1_pos)
     WIN.blit(ship_option2, option2_pos)
     WIN.blit(ship_option3, option3_pos)
+    WIN.blit(ship_option4, option4_pos)
     # Add blits for additional options
     pygame.display.update()
 
@@ -198,7 +203,9 @@ def customization_menu():
                 elif event.key == pygame.K_2:
                     return 1
                 elif event.key == pygame.K_3:
-                    return 2  # Index of ship 2 in ship_images list
+                    return 2
+                elif event.key == pygame.K_4:
+                    return 3  # Index of ship 2 in ship_images list
                 # Add more key checks for additional options
 
 
@@ -218,8 +225,7 @@ def main():
     last_difficulty_increase = 0
     paused_time = None  # To store the time when the game is paused
 
-    star_add_increment = 5
-    powerup_add_increment = 8
+    powerup_add_increment = 5
     star_count = 0
     powerup_count = 0
 
@@ -232,17 +238,15 @@ def main():
         dt = clock.tick(60) / 1000.0  # Convert to seconds
         star_count += dt
         powerup_count += dt
-
         elapsed_time = get_elapsed_time(start_time, paused_time)
 
-        # Increase difficulty every 30 seconds
-        if elapsed_time - last_difficulty_increase >= 30:
+        # Increase difficulty every 20 seconds
+        if elapsed_time - last_difficulty_increase >= 20:
             STAR_VELOCITY += 1
-            star_add_increment += 4
             last_difficulty_increase = elapsed_time
 
-        if star_count > star_add_increment:
-            for _ in range(3):
+        if star_count > 1:
+            for _ in range(2):
                 star_x = random.randint(0, WIDTH - STAR_WIDTH)
                 star = pygame.Rect(star_x, -STAR_HEIGHT, STAR_WIDTH, STAR_HEIGHT)
                 stars.append(star)
