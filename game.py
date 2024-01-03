@@ -42,7 +42,7 @@ def draw_stars(stars):
     for star in stars:
         WIN.blit(star_image, star.topleft)
 
-# This Function is for the powerup which it will make them draw on the screen
+#This Function is for the powerup which it will make them draw on the screen
 def draw_powerups(powerups):
     powerup_image = pygame.transform.scale(pygame.image.load("power_up.png").convert_alpha(), (POWERUP_WIDTH, POWERUP_HEIGHT))
     for powerup in powerups:
@@ -86,7 +86,7 @@ def create_star_masks(stars):
         star_masks.append(mask)
     return star_masks
 
-# This Functions Checks for collisions between the player and stars
+#This Functions Checks for collisions between the player and stars
 def check_star_collision(player, stars, star_masks):
     player_mask = create_player_mask(player)
     for i, star in enumerate(stars):
@@ -171,7 +171,7 @@ def start_menu():
                     pygame.quit()
                     sys.exit()
 
-# This functions for powerups which  it will make them spawn randomly
+#This functions for powerups which  it will make them spawn randomly
 def spawn_powerup(powerups):
     powerup_x = random.randint(0, WIDTH - POWERUP_WIDTH)
     powerup = pygame.Rect(powerup_x, -POWERUP_HEIGHT, POWERUP_WIDTH, POWERUP_HEIGHT)
