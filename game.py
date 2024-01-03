@@ -23,20 +23,18 @@ sound_sfx.set_volume(0.5)
 PLAYER_WIDTH, PLAYER_HEIGHT = 60, 40
 PLAYER_VEL = 5
 DEFAULT_PLAYER_VEL = 5
-POWERUP_DURATION = 5  # seconds
+POWERUP_DURATION = 5  
 
 STAR_WIDTH, STAR_HEIGHT, STAR_VELOCITY = 50, 70, 3
 POWERUP_WIDTH, POWERUP_HEIGHT, POWERUP_VELOCITY = 50, 50, 3
 
 FONT = pygame.font.SysFont("oswald", 50)
-
-# Load different ship images for customization
+#This Variabule is for ship photo
 ship_images = [
     pygame.image.load("Ship.png").convert_alpha(),
     pygame.image.load("Ship2.png").convert_alpha(),
     pygame.image.load("Ship3.png").convert_alpha(),
     pygame.image.load("Ship4.png").convert_alpha(),
-    # Add more images if needed
 ]
 
 def draw_stars(stars):
@@ -44,6 +42,7 @@ def draw_stars(stars):
     for star in stars:
         WIN.blit(star_image, star.topleft)
 
+# This Function is for the powerup which it will make them draw on the screen
 def draw_powerups(powerups):
     powerup_image = pygame.transform.scale(pygame.image.load("power_up.png").convert_alpha(), (POWERUP_WIDTH, POWERUP_HEIGHT))
     for powerup in powerups:
@@ -73,10 +72,12 @@ def get_elapsed_time(start_time, paused_time):
         return round(paused_time - start_time)
     return round(current_time - start_time)
 
+#This Function is for player mask to fix the collision
 def create_player_mask(player):
     player_image = pygame.transform.scale(ship_images[0], (PLAYER_WIDTH, PLAYER_HEIGHT))
     return pygame.mask.from_surface(player_image)
 
+#This Function is for star mask to fix collision
 def create_star_masks(stars):
     star_masks = []
     star_image = pygame.transform.scale(pygame.image.load("Star.png").convert_alpha(), (STAR_WIDTH, STAR_HEIGHT))
@@ -85,6 +86,7 @@ def create_star_masks(stars):
         star_masks.append(mask)
     return star_masks
 
+# This Functions Checks for collisions between the player and stars
 def check_star_collision(player, stars, star_masks):
     player_mask = create_player_mask(player)
     for i, star in enumerate(stars):
@@ -169,11 +171,13 @@ def start_menu():
                     pygame.quit()
                     sys.exit()
 
+# This functions for powerups which  it will make them spawn randomly
 def spawn_powerup(powerups):
     powerup_x = random.randint(0, WIDTH - POWERUP_WIDTH)
     powerup = pygame.Rect(powerup_x, -POWERUP_HEIGHT, POWERUP_WIDTH, POWERUP_HEIGHT)
     powerups.append(powerup)
 
+#This function for player movement
 def handle_input(player):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
@@ -193,7 +197,7 @@ def customization_menu():
     ship_option2 = menu_font.render("Press 2 for Ship 2", 1, "white")
     ship_option3 = menu_font.render("Press 3 for Ship 3", 1, "white")
     ship_option4 = menu_font.render("Press 4 for Ship 4", 1, "white")
-    # Add more options if needed
+   
 
     title_pos = (WIDTH // 2 - menu_title.get_width() // 2, 100)
     option1_pos = (WIDTH // 2 - ship_option1.get_width() // 2, title_pos[1] + menu_title.get_height() + 50)
@@ -201,7 +205,7 @@ def customization_menu():
     option3_pos = (WIDTH // 2 - ship_option3.get_width() // 2, option2_pos[1] + ship_option2.get_height() + 20)
     option4_pos = (WIDTH // 2 - ship_option4.get_width() // 2, option3_pos[1] + ship_option3.get_height() + 20)
     
-    # Adjust positions for additional options
+    
 
     WIN.blit(BG, (0, 0))
     WIN.blit(menu_title, title_pos)
@@ -209,7 +213,7 @@ def customization_menu():
     WIN.blit(ship_option2, option2_pos)
     WIN.blit(ship_option3, option3_pos)
     WIN.blit(ship_option4, option4_pos)
-    # Add blits for additional options
+
     pygame.display.update()
 
     waiting = True
@@ -220,14 +224,14 @@ def customization_menu():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return 0  # Index of ship 1 in ship_images list
+                    return 0  
                 elif event.key == pygame.K_2:
                     return 1
                 elif event.key == pygame.K_3:
                     return 2
                 elif event.key == pygame.K_4:
-                    return 3  # Index of ship 2 in ship_images list
-                # Add more key checks for additional options
+                    return 3  
+                
 
 def main():
     global PLAYER_VEL, STAR_VELOCITY
@@ -243,7 +247,7 @@ def main():
     powerup_timer = 0
     powerup_active = False
     last_difficulty_increase = 0
-    paused_time = None  # To store the time when the game is paused
+    paused_time = None  
 
     powerup_add_increment = 5
     star_count = 0
@@ -255,12 +259,12 @@ def main():
     paused = False
 
     while run:
-        dt = clock.tick(60) / 1000.0  # Convert to seconds
+        dt = clock.tick(60) / 1000.0  
         star_count += dt
         powerup_count += dt
         elapsed_time = get_elapsed_time(start_time, paused_time)
 
-        # Increase difficulty every 20 seconds
+        
         if elapsed_time - last_difficulty_increase >= 20:
             STAR_VELOCITY += 1
             last_difficulty_increase = elapsed_time
@@ -287,10 +291,10 @@ def main():
                 if event.key == pygame.K_p:
                     paused = not paused
                     if paused:
-                        # Store the time when the game is paused
+                        
                         paused_start_time = time.time()
                     else:
-                        # Adjust the start_time to account for the time spent in pause
+                        
                         paused_duration = time.time() - paused_start_time
                         start_time += paused_duration
                         paused_time = None
@@ -318,7 +322,7 @@ def main():
                     powerup_active = True
 
             if powerup_active and time.time() - powerup_timer > POWERUP_DURATION:
-                # Powerup duration has expired
+                
                 PLAYER_VEL = DEFAULT_PLAYER_VEL
                 powerup_active = False
 
@@ -354,7 +358,7 @@ def main():
                     PLAYER_VEL = DEFAULT_PLAYER_VEL
                     powerup_active = False
                     last_difficulty_increase = elapsed_time
-                    paused_time = None  # Reset paused time
+                    paused_time = None  
                 else:
                     break
 
